@@ -53,11 +53,7 @@
     const mensaje = document.getElementById("mensaje");
 
     respuesta.addEventListener("change", function() {
-      if (respuesta.value === "No") {
-        foto.required = true;
-      } else {
-        foto.required = false;
-      }
+      foto.required = respuesta.value === "No";
     });
 
     formulario.addEventListener("submit", function(e) {
