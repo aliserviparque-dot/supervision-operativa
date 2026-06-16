@@ -1,149 +1,69 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Supervision de Cajeras</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervision Operativa</title>
 </head>
 <body>
-  <header class="topbar">
-    <div>
-      <p class="eyebrow">Supermercado</p>
-      <h1>Supervision de cajeras</h1>
-    </div>
-    <div class="datebox">
-      <span id="todayLabel"></span>
-      <strong id="assignedSupervisor">Sin asignar</strong>
-    </div>
-  </header>
 
-  <main class="shell">
-    <section class="panel qr-panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Acceso diario</p>
-          <h2>Codigo QR para supervisores</h2>
-        </div>
-        <button id="printQrButton" class="icon-button" type="button" title="Imprimir QR">Imprimir</button>
-      </div>
-      <div class="qr-layout">
-        <img id="qrImage" alt="Codigo QR del formulario">
-        <div class="settings">
-          <label>
-            URL del formulario
-            <input id="formUrl" type="url" placeholder="https://mi-supermercado.com/supervision">
-          </label>
-          <label>
-            Correo destino
-            <input id="emailTo" type="email" placeholder="supervision@empresa.com">
-          </label>
-          <label>
-            API de envio
-            <input id="apiUrl" type="url" placeholder="https://mi-servidor.com/api/reports">
-          </label>
-          <button id="saveSettingsButton" class="primary" type="button">Guardar configuracion</button>
-        </div>
-      </div>
-    </section>
+  <h1>Supervision Operativa</h1>
 
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Turnos</p>
-          <h2>Supervisor responsable por dia</h2>
-        </div>
-      </div>
-      <div id="scheduleGrid" class="schedule-grid"></div>
-    </section>
+  <form id="formulario">
+    <label>Supervisor</label><br>
+    <input type="text" name="supervisor" required><br><br>
 
-    <section class="panel form-panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Revision</p>
-          <h2>Checklist de organizacion</h2>
-        </div>
-        <span id="sendStatus" class="status"></span>
-      </div>
+    <label>Area</label><br>
+    <input type="text" name="area" value="Caja" required><br><br>
 
-      <form id="inspectionForm">
-        <div class="form-grid">
-          <label>
-            Supervisor
-            <input name="supervisor" id="supervisorInput" required>
-          </label>
-          <label>
-            Caja / area
-            <input name="checkout" required placeholder="Caja 1, Caja rapida, etc.">
-          </label>
-          <label>
-            Turno
-            <select name="shift" required>
-              <option value="Manana">Manana</option>
-              <option value="Tarde">Tarde</option>
-              <option value="Noche">Noche</option>
-            </select>
-          </label>
-          <label>
-            Cajera evaluada
-            <input name="cashier" required>
-          </label>
-        </div>
+    <label>Empleado</label><br>
+    <input type="text" name="empleado" required><br><br>
 
-        <div id="checklist" class="checklist"></div>
+    <label>Caja</label><br>
+    <input type="text" name="caja" required><br><br>
 
-        <label>
-          Observaciones
-          <textarea name="notes" rows="4" placeholder="Detalle hallazgos, acciones correctivas o novedades."></textarea>
-        </label>
+    <label>Pregunta</label><br>
+    <input type="text" name="pregunta" value="El area de caja esta limpia y ordenada" required><br><br>
 
-        <label class="photo-drop">
-          <input id="photoInput" name="photos" type="file" accept="image/*" multiple>
-          <span>Adjuntar fotos de evidencia</span>
-          <small>Puede seleccionar varias imagenes desde camara o galeria.</small>
-        </label>
-        <div id="photoPreview" class="photo-preview"></div>
+    <label>Respuesta</label><br>
+    <select name="respuesta" required>
+      <option value="Si">Si</option>
+      <option value="No">No</option>
+      <option value="Observacion">Observacion</option>
+    </select><br><br>
 
-        <div class="actions">
-          <button class="primary" type="submit">Enviar supervision</button>
-          <button id="clearButton" type="button">Limpiar</button>
-        </div>
-      </form>
-    </section>
+    <label>Observacion</label><br>
+    <textarea name="observacion"></textarea><br><br>
 
-    <section class="panel">
-      <div class="section-title">
-        <div>
-          <p class="eyebrow">Registros</p>
-          <h2>Ultimas supervisiones</h2>
-        </div>
-        <button id="exportButton" type="button">Exportar CSV</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Supervisor</th>
-              <th>Cajera</th>
-              <th>Caja</th>
-              <th>Resultado</th>
-              <th>Fotos</th>
-            </tr>
-          </thead>
-          <tbody id="reportsTable"></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+    <button type="submit">Enviar</button>
+  </form>
 
-  <template id="dayTemplate">
-    <label class="day-card">
-      <span></span>
-      <input>
-    </label>
-  </template>
+  <p id="mensaje"></p>
 
-  <script src="app.js"></script>
+  <script>
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbygOG4m6WCO4PLRiGJrd6Q8uXisNBm6eCzIBh6b1xu5EZ2P-TiP-ZtHqSwmjtqSFABfMg/exec";
+
+    document.getElementById("formulario").addEventListener("submit", async function(e) {
+      e.preventDefault();
+
+      const datos = Object.fromEntries(new FormData(this).entries());
+      const mensaje = document.getElementById("mensaje");
+
+      mensaje.innerText = "Enviando...";
+
+      try {
+        await fetch(URL_SCRIPT, {
+          method: "POST",
+          body: JSON.stringify(datos)
+        });
+
+        mensaje.innerText = "Supervision enviada correctamente.";
+        this.reset();
+      } catch (error) {
+        mensaje.innerText = "No se pudo enviar. Revisa la conexion o el Apps Script.";
+      }
+    });
+  </script>
+
 </body>
 </html>
