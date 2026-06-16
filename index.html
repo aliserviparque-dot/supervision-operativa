@@ -9,12 +9,7 @@
 
   <h1>Supervision Operativa</h1>
 
-  <form
-    action="https://script.google.com/macros/s/AKfycbygOG4m6WCO4PLRiGJrd6Q8uXisNBm6eCzIBh6b1xu5EZ2P-TiP-ZtHqSwmjtqSFABfMg/exec"
-    method="POST"
-    target="respuesta"
-    onsubmit="document.getElementById('mensaje').innerText='Supervision enviada. Revisa Google Sheets y el correo.';"
-  >
+  <form id="formulario">
     <label>Supervisor</label><br>
     <input type="text" name="supervisor" required><br><br>
 
@@ -31,11 +26,15 @@
     <input type="text" name="pregunta" value="El area de caja esta limpia y ordenada" required><br><br>
 
     <label>Respuesta</label><br>
-    <select name="respuesta" required>
+    <select name="respuesta" id="respuesta" required>
       <option value="Si">Si</option>
       <option value="No">No</option>
       <option value="Observacion">Observacion</option>
     </select><br><br>
+
+    <label>Foto</label><br>
+    <input type="file" id="foto" accept="image/*"><br>
+    <small>La foto es obligatoria si la respuesta es No.</small><br><br>
 
     <label>Observacion</label><br>
     <textarea name="observacion"></textarea><br><br>
@@ -43,9 +42,64 @@
     <button type="submit">Enviar</button>
   </form>
 
-  <iframe name="respuesta" style="display:none;"></iframe>
-
   <p id="mensaje"></p>
+
+  <script>
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbygOG4m6WCO4PLRiGJrd6Q8uXisNBm6eCzIBh6b1xu5EZ2P-TiP-ZtHqSwmjtqSFABfMg/exec";
+
+    const formulario = document.getElementById("formulario");
+    const respuesta = document.getElementById("respuesta");
+    const foto = document.getElementById("foto");
+    const mensaje = document.getElementById("mensaje");
+
+    respuesta.addEventListener("change", function() {
+      if (respuesta.value === "No") {
+        foto.required = true;
+      } else {
+        foto.required = false;
+      }
+    });
+
+    formulario.addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      if (respuesta.value === "No" && !foto.files.length) {
+        mensaje.innerText = "Debe subir una foto cuando la respuesta es No.";
+        return;
+      }
+
+      mensaje.innerText = "Enviando...";
+
+      const datos = new FormData(formulario);
+      const archivo = foto.files[0];
+
+      if (archivo) {
+        const lector = new FileReader();
+
+        lector.onload = function() {
+          datos.append("fotoBase64", lector.result);
+          datos.append("fotoNombre", archivo.name);
+          enviarDatos(datos);
+        };
+
+        lector.readAsDataURL(archivo);
+      } else {
+        enviarDatos(datos);
+      }
+    });
+
+    function enviarDatos(datos) {
+      fetch(URL_SCRIPT, {
+        method: "POST",
+        mode: "no-cors",
+        body: datos
+      });
+
+      mensaje.innerText = "Supervision enviada. Revisa Google Sheets y el correo.";
+      formulario.reset();
+      foto.required = false;
+    }
+  </script>
 
 </body>
 </html>
