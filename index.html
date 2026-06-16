@@ -1,101 +1,78 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Supervision Operativa</title>
-</head>
-<body>
-
-  <h1>Supervision Operativa</h1>
-
-  <form id="formulario">
-    <label>Supervisor</label><br>
-    <input type="text" name="supervisor" required><br><br>
-
-    <label>Area</label><br>
-    <input type="text" name="area" value="Caja" required><br><br>
-
-    <label>Empleado</label><br>
-    <input type="text" name="empleado" required><br><br>
-
-    <label>Caja</label><br>
-    <input type="text" name="caja" required><br><br>
-
-    <label>Pregunta</label><br>
-    <input type="text" name="pregunta" value="El area de caja esta limpia y ordenada" required><br><br>
-
-    <label>Respuesta</label><br>
-    <select name="respuesta" id="respuesta" required>
-      <option value="Si">Si</option>
-      <option value="No">No</option>
-      <option value="Observacion">Observacion</option>
-    </select><br><br>
-
-    <label>Foto</label><br>
-    <input type="file" id="foto" accept="image/*"><br>
-    <small>La foto es obligatoria si la respuesta es No.</small><br><br>
-
-    <label>Observacion</label><br>
-    <textarea name="observacion"></textarea><br><br>
-
-    <button type="submit">Enviar</button>
-  </form>
-
-  <p id="mensaje"></p>
+</main>
 
   <script>
+    const supervisores = [
+      { id: "U001", nombre: "Juna", clave: "1234" },
+      { id: "U002", nombre: "Maria Supervisor", clave: "1234" }
+    ];
     const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbygOG4m6WCO4PLRiGJrd6Q8uXisNBm6eCzIBh6b1xu5EZ2P-TiP-ZtHqSwmjtqSFABfMg/exec";
 
-    const formulario = document.getElementById("formulario");
-    const respuesta = document.getElementById("respuesta");
-    const foto = document.getElementById("foto");
-    const mensaje = document.getElementById("mensaje");
+    const cajeras = [
+      { id: "C001", nombre: "Juana", caja: "1" },
+      { id: "C002", nombre: "Maria", caja: "2" },
+      { id: "C003", nombre: "Ana", caja: "3" }
+    ];
 
-    respuesta.addEventListener("change", function() {
-      foto.required = respuesta.value === "No";
-    });
+    const preguntasBase = [
+      "El area de caja esta limpia y ordenada",
+      "La cajera tiene uniforme correcto",
+      "La caja tiene materiales necesarios",
+      "La atencion al cliente fue adecuada"
+    ];
+    let supervisores = [];
+    let cajeras = [];
+    let preguntasBase = [];
 
-    formulario.addEventListener("submit", function(e) {
-      e.preventDefault();
+    const estado = {
+      supervisor: null,
 
-      if (respuesta.value === "No" && !foto.files.length) {
-        mensaje.innerText = "Debe subir una foto cuando la respuesta es No.";
-        return;
-      }
-
-      mensaje.innerText = "Enviando...";
-
-      const datos = new FormData(formulario);
-      const archivo = foto.files[0];
-
-      if (archivo) {
-        const lector = new FileReader();
-
-        lector.onload = function() {
-          datos.append("fotoBase64", lector.result);
-          datos.append("fotoNombre", archivo.name);
-          enviarDatos(datos);
-        };
-
-        lector.readAsDataURL(archivo);
-      } else {
-        enviarDatos(datos);
-      }
-    });
-
-    function enviarDatos(datos) {
-      fetch(URL_SCRIPT, {
-        method: "POST",
-        mode: "no-cors",
-        body: datos
-      });
-
-      mensaje.innerText = "Supervision enviada. Revisa Google Sheets y el correo.";
-      formulario.reset();
-      foto.required = false;
+    function cargarSupervisores() {
+      const select = document.getElementById("supervisor");
+      select.innerHTML = '<option value="">Seleccionar</option>';
+      supervisores.forEach((supervisor) => {
+        const option = document.createElement("option");
+        option.value = supervisor.id;
+      crearSelectPersonalizado(select);
     }
-  </script>
 
+    function cargarDatosDesdeSheet() {
+      const mensaje = document.getElementById("loginMensaje");
+      mensaje.className = "status-line";
+      mensaje.textContent = "Cargando datos...";
+
+      window.recibirDatosSupervision = function(datos) {
+        supervisores = datos.supervisores || [];
+        cajeras = datos.cajeras || [];
+        preguntasBase = (datos.preguntas || []).map((item) => item.pregunta);
+        cargarSupervisores();
+        mensaje.className = "status-line ok";
+        mensaje.textContent = "Datos cargados desde Google Sheets.";
+      };
+
+      const script = document.createElement("script");
+      script.src = URL_SCRIPT + "?action=datos&callback=recibirDatosSupervision";
+      script.onerror = function() {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "No se pudieron cargar los datos.";
+      };
+      document.body.appendChild(script);
+    }
+
+    function validarSupervisor() {
+      const id = document.getElementById("supervisor").value;
+      const clave = document.getElementById("clave").value;
+    function cerrarSesion() {
+      estado.supervisor = null;
+      document.getElementById("clave").value = "";
+      estado.revisiones = {};
+      mostrarPantalla("screenInicio");
+    }
+
+
+    document.addEventListener("click", () => cerrarSelectsPersonalizados());
+
+    cargarSupervisores();
+    cargarDatosDesdeSheet();
+  </script>
 </body>
 </html>
