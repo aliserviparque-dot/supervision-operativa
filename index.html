@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervision Operativa</title>
+  <style>
+    :root {
+      --red: #d81f15;
+      --red-dark: #a9150f;
+      --yellow: #ffd21a;
+      --yellow-soft: #fff3b3;
+      --bg: #fff8e8;
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-strong: rgba(255, 255, 255, 0.88);
+      --text: #241411;
+      --muted: #735d58;
+      --line: rgba(216, 31, 21, 0.16);
+      --danger: #b3261e;
+      --warn: #b35b00;
+      --ok: #167044;
+      --shadow: 0 24px 60px rgba(125, 39, 23, 0.16);
+      --inset: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 16% 8%, rgba(255, 210, 26, 0.5), transparent 34%),
+        radial-gradient(circle at 86% 12%, rgba(216, 31, 21, 0.14), transparent 30%),
+        linear-gradient(145deg, #fff8e8 0%, #fffdf8 48%, #fff1d5 100%);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 15px;
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(216, 31, 21, 0.24), var(--inset);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #e52a1f, var(--red-dark));
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(216, 31, 21, 0.28), var(--inset);
+    }
+
+    button.secondary {
+      border: 1px solid rgba(216, 31, 21, 0.18);
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--text);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    button.secondary:hover {
+      border-color: var(--red);
+    }
+
+    button.ghost {
+      background: rgba(255, 210, 26, 0.26);
+      color: var(--red-dark);
+      border: 1px solid rgba(255, 210, 26, 0.7);
+    }
+
+    button.neutral {
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(115, 93, 88, 0.2);
+      color: var(--muted);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    button.neutral:hover {
+      border-color: rgba(216, 31, 21, 0.28);
+      color: var(--red-dark);
+    }
+
+    .app-header {
+      color: var(--text);
+      padding: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 248, 232, 0.72);
+      border-bottom: 1px solid rgba(216, 31, 21, 0.12);
+      backdrop-filter: blur(22px) saturate(160%);
+    }
+
+    .header-inner,
+    .screen {
+      width: min(920px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--yellow);
+      color: var(--red);
+      font-size: 34px;
+      font-weight: 900;
+      line-height: 1;
+      box-shadow: 0 16px 34px rgba(216, 31, 21, 0.18), var(--inset);
+    }
+
+    .company {
+      margin: 0 0 5px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--red);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 28px;
+      color: var(--red);
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    main .screen {
+      display: none !important;
+      padding: 22px 0 42px;
+    }
+
+    main .screen.active {
+      display: block !important;
+    }
+
+    main .screen.active.intro {
+      display: grid !important;
+    }
+
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      backdrop-filter: blur(24px) saturate(150%);
+      box-shadow: var(--shadow), var(--inset);
+    }
+
+    .intro {
+      min-height: 62vh;
+      place-items: center;
+    }
+
+    .intro-card {
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+      border-color: rgba(255, 210, 26, 0.55);
+    }
+
+    .intro-card p {
+      color: var(--muted);
+      margin: 10px 0 20px;
+      line-height: 1.45;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 11px;
+      border: 1px solid rgba(216, 31, 21, 0.15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--text);
+      box-shadow: var(--inset);
+      outline: none;
+      backdrop-filter: blur(16px);
+    }
+
+    select {
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--red) 50%),
+        linear-gradient(135deg, var(--red) 50%, transparent 50%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
+      background-position:
+        calc(100% - 20px) 19px,
+        calc(100% - 14px) 19px,
+        0 0;
+      background-size:
+        6px 6px,
+        6px 6px,
+        100% 100%;
+      background-repeat: no-repeat;
+      padding-right: 44px;
+      cursor: pointer;
+    }
+
+    select:hover,
+    input:hover,
+    textarea:hover {
+      border-color: rgba(216, 31, 21, 0.34);
+      background-color: rgba(255, 255, 255, 0.86);
+    }
+
+    select option {
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    .native-select-hidden {
+      display: none;
+    }
+
+    .custom-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select.open {
+      z-index: 1000;
+    }
+
+    .custom-select-button {
+      width: 100%;
+      min-height: 46px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(216, 31, 21, 0.15);
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.46));
+      color: var(--text);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(18px) saturate(160%);
+      cursor: pointer;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    .custom-select-button:hover,
+    .custom-select.open .custom-select-button {
+      border-color: rgba(216, 31, 21, 0.38);
+      box-shadow: 0 0 0 4px rgba(216, 31, 21, 0.1), var(--inset);
+    }
+
+    .custom-select-button::after {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-right: 2px solid var(--red);
+      border-bottom: 2px solid var(--red);
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.18s ease;
+      flex: 0 0 auto;
+    }
+
+    .custom-select.open .custom-select-button::after {
+      transform: rotate(225deg) translateY(-1px);
+    }
+
+    .custom-options {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      display: none;
+      overflow: hidden;
+      border: 1px solid rgba(216, 31, 21, 0.16);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 24px 48px rgba(125, 39, 23, 0.2), var(--inset);
+      backdrop-filter: blur(26px) saturate(170%);
+    }
+
+    .custom-select.open .custom-options {
+      display: block;
+    }
+
+    .custom-option {
+      width: 100%;
+      border: 0;
+      border-radius: 0;
+      padding: 12px 14px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      box-shadow: none;
+    }
+
+    .custom-option:hover {
+      background: rgba(255, 210, 26, 0.32);
+      color: var(--red-dark);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .custom-option.selected {
+      background: linear-gradient(135deg, rgba(216, 31, 21, 0.14), rgba(255, 210, 26, 0.26));
+      color: var(--red-dark);
+      font-weight: 800;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(216, 31, 21, 0.11), var(--inset);
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .cashier-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px) saturate(150%);
+    }
+
+    .cashier-card.done {
+      border-color: rgba(22, 112, 68, 0.28);
+      background: rgba(232, 247, 239, 0.72);
+    }
+
+    .cashier-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .cashier-actions button {
+      min-height: 40px;
+      padding: 10px 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.warn {
+      background: rgba(255, 210, 26, 0.26);
+      color: var(--warn);
+    }
+
+    .badge.ok {
+      background: rgba(232, 247, 239, 0.95);
+      color: var(--ok);
+    }
+
+    .question {
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .question:has(.custom-select.open) {
+      z-index: 20;
+    }
+
+    .question-head {
+      display: grid;
+      grid-template-columns: 1fr 160px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .photo-box {
+      display: none;
+      margin-top: 12px;
+      border: 1px dashed var(--red);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 243, 179, 0.36);
+    }
+
+    .photo-box.visible {
+      display: block;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .actions button {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item {
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px);
+    }
+
+    .status-line {
+      margin-top: 12px;
+      min-height: 22px;
+      font-weight: 700;
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    @media (max-width: 680px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      .grid,
+      .question-head,
+      .cashier-card {
+        grid-template-columns: 1fr;
+      }
+
+      .cashier-actions {
+        justify-content: stretch;
+      }
+
+      .cashier-actions button {
+        flex: 1;
+      }
+
+      .top-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="brand-mark">a</div>
+      <div>
+        <p class="company">Superaliclor Cia Ltda</p>
+        <h1>Supervision Operativa</h1>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="screenInicio" class="screen active intro">
+      <div class="card intro-card">
+        <h2>Revision diaria de cajas</h2>
+        <p>Inicia la supervision, selecciona tu usuario y revisa cada cajera antes de enviar el reporte final.</p>
+        <button type="button" onclick="mostrarPantalla('screenLogin')">Iniciar</button>
+      </div>
+    </section>
+
+    <section id="screenLogin" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2>Ingreso de supervisor</h2>
+            <p class="muted">Selecciona tu nombre e ingresa tu clave.</p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenInicio')">Volver</button>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="supervisor">Supervisor</label>
+            <select id="supervisor">
+              <option value="">Seleccionar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="clave">Clave</label>
+            <input id="clave" type="password" inputmode="numeric">
+          </div>
+        </div>
+
+        <button type="button" onclick="validarSupervisor()">Entrar</button>
+        <p id="loginMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenCajeras" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2>Cajas pendientes</h2>
+            <p id="supervisorActivo" class="muted"></p>
+          </div>
+          <button class="secondary" type="button" onclick="cerrarSesion()">Salir</button>
+        </div>
+
+        <div id="listaCajeras" class="list"></div>
+
+        <div class="actions">
+          <button class="ghost" type="button" onclick="mostrarResumen()">Ver resumen</button>
+          <button type="button" onclick="mostrarResumen()">Enviar reporte final</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="screenAsignarCaja" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2 id="tituloAsignarCaja">Caja</h2>
+            <p class="muted">Selecciona quien esta atendiendo esta caja.</p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenCajeras')">Volver</button>
+        </div>
+
+        <div class="field">
+          <label for="cajeraAsignada">Cajera</label>
+          <select id="cajeraAsignada">
+            <option value="">Seleccionar</option>
+          </select>
+        </div>
+
+        <div class="actions">
+          <button type="button" onclick="iniciarRevisionCaja()">Revisar</button>
+          <button class="neutral" type="button" onclick="marcarCaja('No vino')">No vino</button>
+          <button class="ghost" type="button" onclick="marcarCaja('Dia libre')">Dia libre</button>
+          <button class="ghost" type="button" onclick="marcarCajaSinCajera()">Sin cajera</button>
+        </div>
+        <p id="asignarCajaMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenChecklist" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2 id="tituloChecklist">Checklist</h2>
+            <p id="subtituloChecklist" class="muted"></p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenCajeras')">Volver</button>
+        </div>
+
+        <div id="preguntas"></div>
+
+        <div class="field">
+          <label for="observacionGeneral">Observacion general</label>
+          <textarea id="observacionGeneral"></textarea>
+        </div>
+
+        <div class="actions">
+          <button type="button" onclick="guardarRevision()">Guardar cajera</button>
+        </div>
+        <p id="checklistMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenResumen" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2>Resumen final</h2>
+            <p class="muted">Revisa el avance antes de enviar el reporte.</p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenCajeras')">Volver</button>
+        </div>
+
+        <div id="resumen" class="summary"></div>
+
+        <div class="actions">
+          <button type="button" onclick="enviarReporteFinal()">Enviar reporte final</button>
+        </div>
+        <p id="resumenMensaje" class="status-line"></p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbygOG4m6WCO4PLRiGJrd6Q8uXisNBm6eCzIBh6b1xu5EZ2P-TiP-ZtHqSwmjtqSFABfMg/exec";
+
+    let supervisores = [];
+    let cajeras = [];
+    let preguntasBase = [];
+    const cajas = ["1", "2", "3", "4", "5", "6"];
+
+    const estado = {
+      supervisor: null,
+      cajaActual: null,
+      cajeraActual: null,
+      revisiones: {}
+    };
+
+    function claveCaja(caja) {
+      return "Caja_" + caja;
+    }
+
+    function escaparHtml(valor) {
+      return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function mostrarPantalla(id) {
+      document.querySelectorAll(".screen").forEach((screen) => {
+        screen.classList.remove("active");
+      });
+      const pantalla = document.getElementById(id);
+      pantalla.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function cargarSupervisores() {
+      const select = document.getElementById("supervisor");
+      select.innerHTML = '<option value="">Seleccionar</option>';
+      supervisores.forEach((supervisor) => {
+        const option = document.createElement("option");
+        option.value = supervisor.id;
+        option.textContent = supervisor.nombre;
+        select.appendChild(option);
+      });
+      reiniciarSelectPersonalizado(select);
+    }
+
+    function cargarDatosDesdeSheet() {
+      const mensaje = document.getElementById("loginMensaje");
+      mensaje.className = "status-line";
+      mensaje.textContent = "Cargando datos...";
+
+      window.recibirDatosSupervision = function(datos) {
+        supervisores = datos.supervisores || [];
+        cajeras = datos.cajeras || [];
+        preguntasBase = (datos.preguntas || []).map((item) => item.pregunta);
+        cargarSupervisores();
+        mensaje.className = "status-line ok";
+        mensaje.textContent = "Datos cargados desde Google Sheets.";
+      };
+
+      const script = document.createElement("script");
+      script.src = URL_SCRIPT + "?action=datos&callback=recibirDatosSupervision";
+      script.onerror = function() {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "No se pudieron cargar los datos.";
+      };
+      document.body.appendChild(script);
+    }
+
+    function validarSupervisor() {
+      const id = document.getElementById("supervisor").value;
+      const clave = document.getElementById("clave").value;
+      const mensaje = document.getElementById("loginMensaje");
+      const supervisor = supervisores.find((item) => item.id === id && item.clave === clave);
+
+      if (!supervisor) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Supervisor o clave incorrecta.";
+        return;
+      }
+
+      estado.supervisor = supervisor;
+      mensaje.textContent = "";
+      document.getElementById("supervisorActivo").textContent = "Supervisor: " + supervisor.nombre;
+      renderCajas();
+      mostrarPantalla("screenCajeras");
+    }
+
+    function cerrarSesion() {
+      estado.supervisor = null;
+      estado.cajaActual = null;
+      estado.cajeraActual = null;
+      document.getElementById("clave").value = "";
+      estado.revisiones = {};
+      mostrarPantalla("screenInicio");
+    }
+
+    function renderCajas() {
+      const lista = document.getElementById("listaCajeras");
+      lista.innerHTML = "";
+
+      cajas.forEach((caja) => {
+        const revision = estado.revisiones[claveCaja(caja)];
+        const estaGestionada = Boolean(revision);
+        const etiqueta = revision ? revision.estado : "Pendiente";
+        const claseBadge = revision?.estado === "Revisada" ? "ok" : revision ? "warn" : "warn";
+        const nombreCajera = revision?.cajera?.nombre || "Sin cajera seleccionada";
+        const div = document.createElement("div");
+        div.className = "cashier-card" + (estaGestionada ? " done" : "");
+        div.innerHTML = `
+          <div>
+            <h3>Caja ${escaparHtml(caja)}</h3>
+            <p class="muted">${escaparHtml(nombreCajera)}</p>
+            <span class="badge ${claseBadge}">${escaparHtml(etiqueta)}</span>
+          </div>
+          <div class="cashier-actions">
+            <button type="button" data-action="seleccionar">${revision ? "Editar" : "Seleccionar cajera"}</button>
+          </div>
+        `;
+        div.querySelector('[data-action="seleccionar"]').addEventListener("click", () => abrirAsignarCaja(caja));
+        lista.appendChild(div);
+      });
+    }
+
+    function abrirAsignarCaja(caja) {
+      estado.cajaActual = caja;
+      const revision = estado.revisiones[claveCaja(caja)];
+      document.getElementById("tituloAsignarCaja").textContent = "Caja " + caja;
+      document.getElementById("asignarCajaMensaje").textContent = "";
+      cargarSelectCajeras(revision?.cajera?.id || "");
+      mostrarPantalla("screenAsignarCaja");
+    }
+
+    function cargarSelectCajeras(valorSeleccionado = "") {
+      const select = document.getElementById("cajeraAsignada");
+      select.innerHTML = '<option value="">Seleccionar</option>';
+
+      cajeras.forEach((cajera) => {
+        const option = document.createElement("option");
+        option.value = cajera.id;
+        option.textContent = cajera.nombre;
+        select.appendChild(option);
+      });
+
+      select.value = valorSeleccionado;
+      reiniciarSelectPersonalizado(select);
+    }
+
+    function obtenerCajeraSeleccionada() {
+      const id = document.getElementById("cajeraAsignada").value;
+      const cajera = cajeras.find((item) => item.id === id);
+
+      if (!cajera || !estado.cajaActual) return null;
+
+      return {
+        ...cajera,
+        caja: estado.cajaActual
+      };
+    }
+
+    function iniciarRevisionCaja() {
+      const mensaje = document.getElementById("asignarCajaMensaje");
+      const cajera = obtenerCajeraSeleccionada();
+
+      if (!cajera) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Selecciona una cajera.";
+        return;
+      }
+
+      estado.cajeraActual = cajera;
+      abrirChecklist();
+    }
+
+    function marcarCaja(estadoCaja) {
+      const mensaje = document.getElementById("asignarCajaMensaje");
+      const cajera = obtenerCajeraSeleccionada();
+
+      if (!cajera) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Selecciona una cajera.";
+        return;
+      }
+
+      estado.revisiones[claveCaja(estado.cajaActual)] = {
+        estado: estadoCaja,
+        cajera,
+        respuestas: [],
+        observacion: estadoCaja
+      };
+
+      renderCajas();
+      mostrarPantalla("screenCajeras");
+    }
+
+    function marcarCajaSinCajera() {
+      if (!estado.cajaActual) return;
+
+      estado.revisiones[claveCaja(estado.cajaActual)] = {
+        estado: "Sin cajera",
+        cajera: {
+          id: "SIN_CAJERA_" + estado.cajaActual,
+          nombre: "Sin cajera",
+          caja: estado.cajaActual
+        },
+        respuestas: [],
+        observacion: "Sin cajera"
+      };
+
+      renderCajas();
+      mostrarPantalla("screenCajeras");
+    }
+
+    function abrirChecklist() {
+      const cajera = estado.cajeraActual;
+      document.getElementById("tituloChecklist").textContent = "Checklist de " + cajera.nombre;
+      document.getElementById("subtituloChecklist").textContent = "Caja " + cajera.caja;
+      document.getElementById("checklistMensaje").textContent = "";
+      renderPreguntas();
+      mostrarPantalla("screenChecklist");
+    }
+
+    function renderPreguntas() {
+      const contenedor = document.getElementById("preguntas");
+      const revision = estado.revisiones[claveCaja(estado.cajaActual)];
+      contenedor.innerHTML = "";
+      document.getElementById("observacionGeneral").value = revision?.observacion || "";
+
+      preguntasBase.forEach((texto, index) => {
+        const respuestaGuardada = revision?.respuestas[index]?.respuesta || "Si";
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `
+          <div class="question-head">
+            <strong>${escaparHtml(texto)}</strong>
+            <select data-index="${index}" class="respuesta-pregunta">
+              <option value="Si">Si</option>
+              <option value="No">No</option>
+              <option value="Observacion">Observacion</option>
+            </select>
+          </div>
+          <div class="photo-box">
+            <label>Foto obligatoria si responde No</label>
+            <input type="file" accept="image/*" capture="environment" data-foto="${index}">
+          </div>
+        `;
+        const select = div.querySelector("select");
+        const photoBox = div.querySelector(".photo-box");
+        select.value = respuestaGuardada;
+        photoBox.classList.toggle("visible", respuestaGuardada === "No");
+        select.addEventListener("change", () => {
+          photoBox.classList.toggle("visible", select.value === "No");
+        });
+        contenedor.appendChild(div);
+        crearSelectPersonalizado(select);
+      });
+    }
+
+    function reiniciarSelectPersonalizado(select) {
+      const wrapper = select.nextElementSibling;
+      if (wrapper && wrapper.classList.contains("custom-select")) {
+        wrapper.remove();
+      }
+      select.dataset.customReady = "";
+      select.classList.remove("native-select-hidden");
+      crearSelectPersonalizado(select);
+    }
+
+    function cerrarSelectsPersonalizados(excepto = null) {
+      document.querySelectorAll(".custom-select.open").forEach((select) => {
+        if (select !== excepto) {
+          select.classList.remove("open");
+        }
+      });
+    }
+
+    function crearSelectPersonalizado(select) {
+      if (select.dataset.customReady === "true") return;
+
+      select.dataset.customReady = "true";
+      select.classList.add("native-select-hidden");
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "custom-select";
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "custom-select-button";
+
+      const optionsBox = document.createElement("div");
+      optionsBox.className = "custom-options";
+
+      function textoSeleccionado() {
+        return select.options[select.selectedIndex]?.textContent || "Seleccionar";
+      }
+
+      function actualizar() {
+        button.textContent = textoSeleccionado();
+        optionsBox.querySelectorAll(".custom-option").forEach((optionButton) => {
+          optionButton.classList.toggle("selected", optionButton.dataset.value === select.value);
+        });
+      }
+
+      Array.from(select.options).forEach((option) => {
+        const optionButton = document.createElement("button");
+        optionButton.type = "button";
+        optionButton.className = "custom-option";
+        optionButton.dataset.value = option.value;
+        optionButton.textContent = option.textContent;
+        optionButton.addEventListener("click", () => {
+          select.value = option.value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          wrapper.classList.remove("open");
+          actualizar();
+        });
+        optionsBox.appendChild(optionButton);
+      });
+
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const estaAbierto = wrapper.classList.contains("open");
+        cerrarSelectsPersonalizados(wrapper);
+        wrapper.classList.toggle("open", !estaAbierto);
+      });
+
+      optionsBox.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+
+      wrapper.appendChild(button);
+      wrapper.appendChild(optionsBox);
+      select.insertAdjacentElement("afterend", wrapper);
+      actualizar();
+    }
+
+    async function guardarRevision() {
+      const mensaje = document.getElementById("checklistMensaje");
+      const respuestas = [];
+      let faltaFoto = false;
+      const lecturas = [];
+
+      document.querySelectorAll(".respuesta-pregunta").forEach((select) => {
+        const index = Number(select.dataset.index);
+        const foto = document.querySelector(`[data-foto="${index}"]`);
+        if (select.value === "No" && !foto.files.length) {
+          faltaFoto = true;
+        }
+        const respuesta = {
+          pregunta: preguntasBase[index],
+          respuesta: select.value,
+          foto: foto.files[0]?.name || "",
+          fotoNombre: "",
+          fotoBase64: ""
+        };
+
+        if (foto.files[0]) {
+          const archivo = foto.files[0];
+          respuesta.fotoNombre = archivo.name;
+          lecturas.push(leerArchivoBase64(archivo).then((base64) => {
+            respuesta.fotoBase64 = base64;
+          }));
+        }
+
+        respuestas.push(respuesta);
+      });
+
+      if (faltaFoto) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Falta una foto en una pregunta marcada como No.";
+        return;
+      }
+
+      mensaje.className = "status-line";
+      mensaje.textContent = "Guardando revision...";
+
+      await Promise.all(lecturas);
+
+      estado.revisiones[claveCaja(estado.cajaActual)] = {
+        estado: "Revisada",
+        cajera: estado.cajeraActual,
+        respuestas,
+        observacion: document.getElementById("observacionGeneral").value
+      };
+
+      mensaje.className = "status-line ok";
+      mensaje.textContent = "Revision guardada.";
+      renderCajas();
+      setTimeout(() => mostrarPantalla("screenCajeras"), 500);
+    }
+
+    function mostrarResumen() {
+      const resumen = document.getElementById("resumen");
+      resumen.innerHTML = "";
+
+      cajas.forEach((caja) => {
+        const revision = estado.revisiones[claveCaja(caja)];
+        const div = document.createElement("div");
+        div.className = "summary-item";
+
+        if (!revision) {
+          div.innerHTML = `<strong>Caja ${escaparHtml(caja)}</strong><br><span class="badge warn">Pendiente</span>`;
+        } else if (revision.estado !== "Revisada") {
+          div.innerHTML = `
+            <strong>Caja ${escaparHtml(caja)}</strong><br>
+            <p class="muted">${escaparHtml(revision.cajera.nombre)}</p>
+            <span class="badge warn">${escaparHtml(revision.estado)} - Caja ${escaparHtml(caja)}</span>
+          `;
+        } else {
+          const novedades = revision.respuestas.filter((item) => item.respuesta === "No" || item.respuesta === "Observacion").length;
+          div.innerHTML = `
+            <strong>${escaparHtml(revision.cajera.nombre)}</strong><br>
+            <span class="badge ok">Revisada - Caja ${escaparHtml(caja)}</span>
+            <p class="muted">${novedades} novedad(es)</p>
+          `;
+        }
+        resumen.appendChild(div);
+      });
+
+      document.getElementById("resumenMensaje").textContent = "";
+      mostrarPantalla("screenResumen");
+    }
+
+    function enviarReporteFinal() {
+      const pendientes = cajas.filter((caja) => !estado.revisiones[claveCaja(caja)]);
+      const mensaje = document.getElementById("resumenMensaje");
+
+      if (pendientes.length) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Aun hay cajas pendientes: " + pendientes.join(", ") + ".";
+        return;
+      }
+
+      mensaje.className = "status-line";
+      mensaje.textContent = "Enviando reporte...";
+
+      enviarPorFormularioOculto({
+        tipo: "reporte_final",
+        reporte: JSON.stringify({
+          supervisor: estado.supervisor,
+          revisiones: Object.values(estado.revisiones)
+        })
+      });
+
+      mensaje.className = "status-line ok";
+      mensaje.textContent = "Reporte enviado. Revisa Google Sheets y el correo.";
+    }
+
+    function enviarPorFormularioOculto(datos) {
+      const iframeName = "envioOcultoSupervision";
+      let iframe = document.querySelector(`iframe[name="${iframeName}"]`);
+
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = iframeName;
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = URL_SCRIPT;
+      form.target = iframeName;
+      form.style.display = "none";
+
+      Object.entries(datos).forEach(([clave, valor]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = clave;
+        input.value = valor;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
+    }
+
+    function leerArchivoBase64(archivo) {
+      return new Promise((resolve, reject) => {
+        const lector = new FileReader();
+        lector.onload = () => resolve(lector.result);
+        lector.onerror = reject;
+        lector.readAsDataURL(archivo);
+      });
+    }
+
+    document.addEventListener("click", () => cerrarSelectsPersonalizados());
+
+    cargarDatosDesdeSheet();
+  </script>
+</body>
+</html>
