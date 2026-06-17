@@ -9,8 +9,10 @@
       --red: #d81f15;
       --red-dark: #a9150f;
       --yellow: #ffd21a;
+      --yellow-soft: #fff3b3;
       --bg: #fff8e8;
       --glass: rgba(255, 255, 255, 0.72);
+      --glass-strong: rgba(255, 255, 255, 0.88);
       --text: #241411;
       --muted: #735d58;
       --line: rgba(216, 31, 21, 0.16);
@@ -21,7 +23,9 @@
       --inset: inset 0 1px 0 rgba(255, 255, 255, 0.86);
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       margin: 0;
@@ -34,7 +38,12 @@
       min-height: 100vh;
     }
 
-    button, input, select, textarea { font: inherit; }
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
 
     button {
       border: 0;
@@ -45,6 +54,13 @@
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 12px 24px rgba(216, 31, 21, 0.24), var(--inset);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #e52a1f, var(--red-dark));
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(216, 31, 21, 0.28), var(--inset);
     }
 
     button.secondary {
@@ -53,6 +69,10 @@
       color: var(--text);
       box-shadow: var(--inset);
       backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    button.secondary:hover {
+      border-color: var(--red);
     }
 
     button.ghost {
@@ -69,7 +89,13 @@
       backdrop-filter: blur(18px) saturate(150%);
     }
 
+    button.neutral:hover {
+      border-color: rgba(216, 31, 21, 0.28);
+      color: var(--red-dark);
+    }
+
     .app-header {
+      color: var(--text);
       padding: 18px;
       position: sticky;
       top: 0;
@@ -79,7 +105,8 @@
       backdrop-filter: blur(22px) saturate(160%);
     }
 
-    .header-inner, .screen {
+    .header-inner,
+    .screen {
       width: min(920px, calc(100% - 28px));
       margin: 0 auto;
     }
@@ -100,6 +127,7 @@
       color: var(--red);
       font-size: 34px;
       font-weight: 900;
+      line-height: 1;
       box-shadow: 0 16px 34px rgba(216, 31, 21, 0.18), var(--inset);
     }
 
@@ -111,7 +139,12 @@
       color: var(--red);
     }
 
-    h1, h2, h3, p { margin: 0; }
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
 
     h1 {
       font-size: 28px;
@@ -123,27 +156,24 @@
       margin-bottom: 6px;
     }
 
-    .screen {
-      display: none;
+    main .screen {
+      display: none !important;
       padding: 22px 0 42px;
     }
 
-    .screen.active {
-      display: block;
+    main .screen.active {
+      display: block !important;
     }
 
-    .screen[hidden] {
-      display: none !important;
-    }
-
-    .screen.active.intro {
-      display: grid;
+    main .screen.active.intro {
+      display: grid !important;
     }
 
     .card {
       background: var(--glass);
       border: 1px solid var(--line);
       border-radius: 18px;
+      box-shadow: var(--shadow);
       padding: 20px;
       backdrop-filter: blur(24px) saturate(150%);
       box-shadow: var(--shadow), var(--inset);
@@ -151,7 +181,6 @@
 
     .intro {
       min-height: 62vh;
-      display: grid;
       place-items: center;
     }
 
@@ -159,6 +188,7 @@
       max-width: 520px;
       width: 100%;
       text-align: center;
+      border-color: rgba(255, 210, 26, 0.55);
     }
 
     .intro-card p {
@@ -173,7 +203,9 @@
       gap: 14px;
     }
 
-    .field { margin-bottom: 14px; }
+    .field {
+      margin-bottom: 14px;
+    }
 
     label {
       display: block;
@@ -183,7 +215,9 @@
       font-weight: 700;
     }
 
-    input, select, textarea {
+    input,
+    select,
+    textarea {
       width: 100%;
       min-height: 46px;
       padding: 10px 11px;
@@ -196,12 +230,40 @@
       backdrop-filter: blur(16px);
     }
 
-    textarea {
-      min-height: 88px;
-      resize: vertical;
+    select {
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--red) 50%),
+        linear-gradient(135deg, var(--red) 50%, transparent 50%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
+      background-position:
+        calc(100% - 20px) 19px,
+        calc(100% - 14px) 19px,
+        0 0;
+      background-size:
+        6px 6px,
+        6px 6px,
+        100% 100%;
+      background-repeat: no-repeat;
+      padding-right: 44px;
+      cursor: pointer;
     }
 
-    .native-select-hidden { display: none; }
+    select:hover,
+    input:hover,
+    textarea:hover {
+      border-color: rgba(216, 31, 21, 0.34);
+      background-color: rgba(255, 255, 255, 0.86);
+    }
+
+    select option {
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    .native-select-hidden {
+      display: none;
+    }
 
     .custom-select {
       position: relative;
@@ -227,6 +289,13 @@
       box-shadow: var(--inset);
       backdrop-filter: blur(18px) saturate(160%);
       cursor: pointer;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    .custom-select-button:hover,
+    .custom-select.open .custom-select-button {
+      border-color: rgba(216, 31, 21, 0.38);
+      box-shadow: 0 0 0 4px rgba(216, 31, 21, 0.1), var(--inset);
     }
 
     .custom-select-button::after {
@@ -236,6 +305,8 @@
       border-right: 2px solid var(--red);
       border-bottom: 2px solid var(--red);
       transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.18s ease;
+      flex: 0 0 auto;
     }
 
     .custom-select.open .custom-select-button::after {
@@ -247,7 +318,7 @@
       top: calc(100% + 8px);
       left: 0;
       right: 0;
-      z-index: 30;
+      z-index: 9999;
       display: none;
       overflow: hidden;
       border: 1px solid rgba(216, 31, 21, 0.16);
@@ -257,7 +328,9 @@
       backdrop-filter: blur(26px) saturate(170%);
     }
 
-    .custom-select.open .custom-options { display: block; }
+    .custom-select.open .custom-options {
+      display: block;
+    }
 
     .custom-option {
       width: 100%;
@@ -273,12 +346,26 @@
     .custom-option:hover {
       background: rgba(255, 210, 26, 0.32);
       color: var(--red-dark);
+      transform: none;
+      box-shadow: none;
     }
 
     .custom-option.selected {
       background: linear-gradient(135deg, rgba(216, 31, 21, 0.14), rgba(255, 210, 26, 0.26));
       color: var(--red-dark);
       font-weight: 800;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(216, 31, 21, 0.11), var(--inset);
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
     }
 
     .top-row {
@@ -294,18 +381,9 @@
       line-height: 1.45;
     }
 
-    .list, .summary {
+    .list {
       display: grid;
       gap: 10px;
-    }
-
-    .cashier-card, .question, .summary-item {
-      border: 1px solid rgba(216, 31, 21, 0.13);
-      border-radius: 16px;
-      padding: 14px;
-      background: rgba(255, 255, 255, 0.62);
-      box-shadow: var(--inset);
-      backdrop-filter: blur(16px) saturate(150%);
     }
 
     .cashier-card {
@@ -313,6 +391,12 @@
       grid-template-columns: 1fr auto;
       gap: 12px;
       align-items: center;
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px) saturate(150%);
     }
 
     .cashier-card.done {
@@ -325,6 +409,11 @@
       gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
+    }
+
+    .cashier-actions button {
+      min-height: 40px;
+      padding: 10px 12px;
     }
 
     .badge {
@@ -349,7 +438,13 @@
     }
 
     .question {
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 13px;
       margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px);
       position: relative;
       z-index: 1;
     }
@@ -374,7 +469,9 @@
       background: rgba(255, 243, 179, 0.36);
     }
 
-    .photo-box.visible { display: block; }
+    .photo-box.visible {
+      display: block;
+    }
 
     .actions {
       display: flex;
@@ -388,19 +485,42 @@
       min-width: 180px;
     }
 
+    .summary {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item {
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px);
+    }
+
     .status-line {
       margin-top: 12px;
       min-height: 22px;
       font-weight: 700;
     }
 
-    .error { color: var(--danger); }
-    .ok { color: var(--ok); }
+    .error {
+      color: var(--danger);
+    }
+
+    .ok {
+      color: var(--ok);
+    }
 
     @media (max-width: 680px) {
-      h1 { font-size: 24px; }
+      h1 {
+        font-size: 24px;
+      }
 
-      .grid, .question-head, .cashier-card {
+      .grid,
+      .question-head,
+      .cashier-card {
         grid-template-columns: 1fr;
       }
 
@@ -419,7 +539,6 @@
     }
   </style>
 </head>
-
 <body>
   <header class="app-header">
     <div class="header-inner">
@@ -457,7 +576,6 @@
               <option value="">Seleccionar</option>
             </select>
           </div>
-
           <div class="field">
             <label for="clave">Clave</label>
             <input id="clave" type="password" inputmode="numeric">
@@ -548,11 +666,8 @@
     function mostrarPantalla(id) {
       document.querySelectorAll(".screen").forEach((screen) => {
         screen.classList.remove("active");
-        screen.hidden = true;
       });
-
       const pantalla = document.getElementById(id);
-      pantalla.hidden = false;
       pantalla.classList.add("active");
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -560,14 +675,12 @@
     function cargarSupervisores() {
       const select = document.getElementById("supervisor");
       select.innerHTML = '<option value="">Seleccionar</option>';
-
       supervisores.forEach((supervisor) => {
         const option = document.createElement("option");
         option.value = supervisor.id;
         option.textContent = supervisor.nombre;
         select.appendChild(option);
       });
-
       crearSelectPersonalizado(select);
     }
 
@@ -580,9 +693,7 @@
         supervisores = datos.supervisores || [];
         cajeras = datos.cajeras || [];
         preguntasBase = (datos.preguntas || []).map((item) => item.pregunta);
-
         cargarSupervisores();
-
         mensaje.className = "status-line ok";
         mensaje.textContent = "Datos cargados desde Google Sheets.";
       };
@@ -593,7 +704,6 @@
         mensaje.className = "status-line error";
         mensaje.textContent = "No se pudieron cargar los datos.";
       };
-
       document.body.appendChild(script);
     }
 
@@ -601,7 +711,6 @@
       const id = document.getElementById("supervisor").value;
       const clave = document.getElementById("clave").value;
       const mensaje = document.getElementById("loginMensaje");
-
       const supervisor = supervisores.find((item) => item.id === id && item.clave === clave);
 
       if (!supervisor) {
@@ -612,17 +721,15 @@
 
       estado.supervisor = supervisor;
       mensaje.textContent = "";
-
       document.getElementById("supervisorActivo").textContent = "Supervisor: " + supervisor.nombre;
-
       renderCajeras();
       mostrarPantalla("screenCajeras");
     }
 
     function cerrarSesion() {
       estado.supervisor = null;
-      estado.revisiones = {};
       document.getElementById("clave").value = "";
+      estado.revisiones = {};
       mostrarPantalla("screenInicio");
     }
 
@@ -635,10 +742,8 @@
         const estaGestionada = Boolean(revision);
         const etiqueta = revision ? revision.estado : "Pendiente";
         const claseBadge = revision?.estado === "Revisada" ? "ok" : revision ? "warn" : "warn";
-
         const div = document.createElement("div");
         div.className = "cashier-card" + (estaGestionada ? " done" : "");
-
         div.innerHTML = `
           <div>
             <h3>${cajera.nombre}</h3>
@@ -650,37 +755,30 @@
             <button class="ghost" type="button" data-action="dia-libre">Dia libre</button>
           </div>
         `;
-
         div.querySelector('[data-action="revisar"]').addEventListener("click", () => abrirChecklist(cajera.id));
         div.querySelector('[data-action="no-vino"]').addEventListener("click", () => marcarCajera(cajera.id, "No vino"));
         div.querySelector('[data-action="dia-libre"]').addEventListener("click", () => marcarCajera(cajera.id, "Dia libre"));
-
         lista.appendChild(div);
       });
     }
 
     function marcarCajera(id, estadoCajera) {
       const cajera = cajeras.find((item) => item.id === id);
-
       estado.revisiones[id] = {
         estado: estadoCajera,
         cajera,
         respuestas: [],
         observacion: estadoCajera
       };
-
       renderCajeras();
     }
 
     function abrirChecklist(id) {
       const cajera = cajeras.find((item) => item.id === id);
-
       estado.cajeraActual = cajera;
-
       document.getElementById("tituloChecklist").textContent = "Checklist de " + cajera.nombre;
       document.getElementById("subtituloChecklist").textContent = "Caja " + cajera.caja;
       document.getElementById("checklistMensaje").textContent = "";
-
       renderPreguntas();
       mostrarPantalla("screenChecklist");
     }
@@ -688,16 +786,13 @@
     function renderPreguntas() {
       const contenedor = document.getElementById("preguntas");
       const revision = estado.revisiones[estado.cajeraActual.id];
-
       contenedor.innerHTML = "";
       document.getElementById("observacionGeneral").value = revision?.observacion || "";
 
       preguntasBase.forEach((texto, index) => {
         const respuestaGuardada = revision?.respuestas[index]?.respuesta || "Si";
-
         const div = document.createElement("div");
         div.className = "question";
-
         div.innerHTML = `
           <div class="question-head">
             <strong>${texto}</strong>
@@ -712,17 +807,13 @@
             <input type="file" accept="image/*" data-foto="${index}">
           </div>
         `;
-
         const select = div.querySelector("select");
         const photoBox = div.querySelector(".photo-box");
-
         select.value = respuestaGuardada;
         photoBox.classList.toggle("visible", respuestaGuardada === "No");
-
         select.addEventListener("change", () => {
           photoBox.classList.toggle("visible", select.value === "No");
         });
-
         contenedor.appendChild(div);
         crearSelectPersonalizado(select);
       });
@@ -758,7 +849,6 @@
 
       function actualizar() {
         button.textContent = textoSeleccionado();
-
         optionsBox.querySelectorAll(".custom-option").forEach((optionButton) => {
           optionButton.classList.toggle("selected", optionButton.dataset.value === select.value);
         });
@@ -770,31 +860,29 @@
         optionButton.className = "custom-option";
         optionButton.dataset.value = option.value;
         optionButton.textContent = option.textContent;
-
         optionButton.addEventListener("click", () => {
           select.value = option.value;
           select.dispatchEvent(new Event("change", { bubbles: true }));
           wrapper.classList.remove("open");
           actualizar();
         });
-
         optionsBox.appendChild(optionButton);
       });
 
       button.addEventListener("click", (event) => {
         event.stopPropagation();
-
         const estaAbierto = wrapper.classList.contains("open");
-
         cerrarSelectsPersonalizados(wrapper);
         wrapper.classList.toggle("open", !estaAbierto);
       });
 
+      optionsBox.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+
       wrapper.appendChild(button);
       wrapper.appendChild(optionsBox);
-
       select.insertAdjacentElement("afterend", wrapper);
-
       actualizar();
     }
 
@@ -806,11 +894,9 @@
       document.querySelectorAll(".respuesta-pregunta").forEach((select) => {
         const index = Number(select.dataset.index);
         const foto = document.querySelector(`[data-foto="${index}"]`);
-
         if (select.value === "No" && !foto.files.length) {
           faltaFoto = true;
         }
-
         respuestas.push({
           pregunta: preguntasBase[index],
           respuesta: select.value,
@@ -833,9 +919,7 @@
 
       mensaje.className = "status-line ok";
       mensaje.textContent = "Revision guardada.";
-
       renderCajeras();
-
       setTimeout(() => mostrarPantalla("screenCajeras"), 500);
     }
 
@@ -846,9 +930,7 @@
       cajeras.forEach((cajera) => {
         const revision = estado.revisiones[cajera.id];
         const div = document.createElement("div");
-
         div.className = "summary-item";
-
         if (!revision) {
           div.innerHTML = `<strong>${cajera.nombre}</strong><br><span class="badge warn">Pendiente - Caja ${cajera.caja}</span>`;
         } else if (revision.estado !== "Revisada") {
@@ -858,14 +940,12 @@
           `;
         } else {
           const novedades = revision.respuestas.filter((item) => item.respuesta === "No" || item.respuesta === "Observacion").length;
-
           div.innerHTML = `
             <strong>${cajera.nombre}</strong><br>
             <span class="badge ok">Revisada - Caja ${cajera.caja}</span>
             <p class="muted">${novedades} novedad(es)</p>
           `;
         }
-
         resumen.appendChild(div);
       });
 
@@ -886,10 +966,6 @@
       mensaje.className = "status-line ok";
       mensaje.textContent = "Prototipo: aqui se enviara el reporte final por correo.";
     }
-
-    document.querySelectorAll(".screen").forEach((screen) => {
-      screen.hidden = !screen.classList.contains("active");
-    });
 
     document.addEventListener("click", () => cerrarSelectsPersonalizados());
 
