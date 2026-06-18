@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervision Operativa</title>
+  <style>
+    :root {
+      --red: #d81f15;
+      --red-dark: #a9150f;
+      --yellow: #ffd21a;
+      --yellow-soft: #fff3b3;
+      --bg: #fff8e8;
+      --glass: rgba(255, 255, 255, 0.72);
+      --glass-strong: rgba(255, 255, 255, 0.88);
+      --text: #241411;
+      --muted: #735d58;
+      --line: rgba(216, 31, 21, 0.16);
+      --danger: #b3261e;
+      --warn: #b35b00;
+      --ok: #167044;
+      --shadow: 0 24px 60px rgba(125, 39, 23, 0.16);
+      --inset: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 16% 8%, rgba(255, 210, 26, 0.5), transparent 34%),
+        radial-gradient(circle at 86% 12%, rgba(216, 31, 21, 0.14), transparent 30%),
+        linear-gradient(145deg, #fff8e8 0%, #fffdf8 48%, #fff1d5 100%);
+      min-height: 100vh;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 15px;
+      background: linear-gradient(135deg, var(--red), var(--red-dark));
+      color: #ffffff;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(216, 31, 21, 0.24), var(--inset);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #e52a1f, var(--red-dark));
+      transform: translateY(-1px);
+      box-shadow: 0 16px 32px rgba(216, 31, 21, 0.28), var(--inset);
+    }
+
+    button.secondary {
+      border: 1px solid rgba(216, 31, 21, 0.18);
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--text);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    button.secondary:hover {
+      border-color: rgba(255, 210, 26, 0.9);
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--text);
+      box-shadow: 0 12px 26px rgba(179, 91, 0, 0.12), var(--inset);
+    }
+
+    button.ghost {
+      background: rgba(255, 210, 26, 0.26);
+      color: var(--red-dark);
+      border: 1px solid rgba(255, 210, 26, 0.7);
+    }
+
+    button.ghost:hover {
+      background: linear-gradient(135deg, rgba(255, 210, 26, 0.55), rgba(255, 255, 255, 0.8));
+      color: var(--red-dark);
+      border-color: rgba(255, 210, 26, 0.95);
+      box-shadow: 0 12px 26px rgba(179, 91, 0, 0.14), var(--inset);
+    }
+
+    button.neutral {
+      background: rgba(255, 255, 255, 0.68);
+      border: 1px solid rgba(115, 93, 88, 0.2);
+      color: var(--muted);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(18px) saturate(150%);
+    }
+
+    button.neutral:hover {
+      background: rgba(255, 255, 255, 0.86);
+      border-color: rgba(255, 210, 26, 0.9);
+      color: var(--text);
+      box-shadow: 0 12px 26px rgba(179, 91, 0, 0.12), var(--inset);
+    }
+
+    .app-header {
+      color: var(--text);
+      padding: 18px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 248, 232, 0.72);
+      border-bottom: 1px solid rgba(216, 31, 21, 0.12);
+      backdrop-filter: blur(22px) saturate(160%);
+    }
+
+    .header-inner,
+    .screen {
+      width: min(920px, calc(100% - 28px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .brand-logo {
+      display: block;
+      width: min(210px, 58vw);
+      height: auto;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: var(--red);
+    }
+
+    h2 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    main .screen {
+      display: none !important;
+      padding: 22px 0 42px;
+    }
+
+    main .screen.active {
+      display: block !important;
+    }
+
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      backdrop-filter: blur(24px) saturate(150%);
+      box-shadow: var(--shadow), var(--inset);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      margin-bottom: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 11px;
+      border: 1px solid rgba(216, 31, 21, 0.15);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.76);
+      color: var(--text);
+      box-shadow: var(--inset);
+      outline: none;
+      backdrop-filter: blur(16px);
+    }
+
+    select {
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--red) 50%),
+        linear-gradient(135deg, var(--red) 50%, transparent 50%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
+      background-position:
+        calc(100% - 20px) 19px,
+        calc(100% - 14px) 19px,
+        0 0;
+      background-size:
+        6px 6px,
+        6px 6px,
+        100% 100%;
+      background-repeat: no-repeat;
+      padding-right: 44px;
+      cursor: pointer;
+    }
+
+    select:hover,
+    input:hover,
+    textarea:hover {
+      border-color: rgba(216, 31, 21, 0.34);
+      background-color: rgba(255, 255, 255, 0.86);
+    }
+
+    select option {
+      color: var(--text);
+      background: #ffffff;
+    }
+
+    .native-select-hidden {
+      display: none;
+    }
+
+    .custom-select {
+      position: relative;
+      width: 100%;
+    }
+
+    .custom-select.open {
+      z-index: 1000;
+    }
+
+    .custom-select-button {
+      width: 100%;
+      min-height: 46px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(216, 31, 21, 0.15);
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.46));
+      color: var(--text);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(18px) saturate(160%);
+      cursor: pointer;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+    }
+
+    .custom-select-button:hover,
+    .custom-select.open .custom-select-button {
+      border-color: rgba(216, 31, 21, 0.38);
+      box-shadow: 0 0 0 4px rgba(216, 31, 21, 0.1), var(--inset);
+    }
+
+    .custom-select-button::after {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-right: 2px solid var(--red);
+      border-bottom: 2px solid var(--red);
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.18s ease;
+      flex: 0 0 auto;
+    }
+
+    .custom-select.open .custom-select-button::after {
+      transform: rotate(225deg) translateY(-1px);
+    }
+
+    .custom-options {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      display: none;
+      overflow: hidden;
+      border: 1px solid rgba(216, 31, 21, 0.16);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      box-shadow: 0 24px 48px rgba(125, 39, 23, 0.2), var(--inset);
+      backdrop-filter: blur(26px) saturate(170%);
+    }
+
+    .custom-select.open .custom-options {
+      display: block;
+    }
+
+    .custom-option {
+      width: 100%;
+      border: 0;
+      border-radius: 0;
+      padding: 12px 14px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+      box-shadow: none;
+    }
+
+    .custom-option:hover {
+      background: rgba(255, 210, 26, 0.32);
+      color: var(--red-dark);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .custom-option.selected {
+      background: linear-gradient(135deg, rgba(216, 31, 21, 0.14), rgba(255, 210, 26, 0.26));
+      color: var(--red-dark);
+      font-weight: 800;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--red);
+      box-shadow: 0 0 0 4px rgba(216, 31, 21, 0.11), var(--inset);
+    }
+
+    textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .cashier-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px) saturate(150%);
+    }
+
+    .cashier-card.done {
+      border-color: rgba(22, 112, 68, 0.28);
+      background: rgba(232, 247, 239, 0.72);
+    }
+
+    .cashier-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .cashier-actions button {
+      min-height: 36px;
+      padding: 8px 10px;
+      font-size: 13px;
+    }
+
+    .name-strip {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 10px;
+      scrollbar-width: thin;
+    }
+
+    .name-button {
+      flex: 0 0 auto;
+      min-width: 118px;
+      border-radius: 16px;
+      border: 1px solid rgba(216, 31, 21, 0.14);
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--text);
+      box-shadow: var(--inset);
+      padding: 12px 14px;
+    }
+
+    .name-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255, 210, 26, 0.95);
+      background: linear-gradient(135deg, rgba(255, 210, 26, 0.42), rgba(255, 255, 255, 0.86));
+      color: var(--text);
+      box-shadow: 0 14px 28px rgba(179, 91, 0, 0.12), var(--inset);
+    }
+
+    .name-button.active {
+      border-color: rgba(216, 31, 21, 0.42);
+      background: linear-gradient(135deg, rgba(255, 210, 26, 0.92), rgba(255, 255, 255, 0.78));
+      color: var(--red-dark);
+      box-shadow: 0 14px 28px rgba(216, 31, 21, 0.14), var(--inset);
+    }
+
+    .empty-strip {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px dashed rgba(216, 31, 21, 0.28);
+      border-radius: 16px;
+      background: rgba(255, 241, 191, 0.5);
+      color: var(--warn);
+      font-weight: 700;
+    }
+
+    .name-button.used:not(.active) {
+      border-color: rgba(179, 91, 0, 0.32);
+      background: rgba(255, 241, 191, 0.72);
+      color: var(--warn);
+    }
+
+    .name-button.used:not(.active):hover {
+      border-color: rgba(179, 91, 0, 0.45);
+      background: rgba(255, 241, 191, 0.9);
+      color: var(--warn);
+    }
+
+    .badge {
+      display: inline-block;
+      margin-top: 5px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.68);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .badge.warn {
+      background: rgba(255, 210, 26, 0.26);
+      color: var(--warn);
+    }
+
+    .badge.ok {
+      background: rgba(232, 247, 239, 0.95);
+      color: var(--ok);
+    }
+
+    .question {
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px);
+      position: relative;
+      z-index: 1;
+    }
+
+    .question:has(.custom-select.open) {
+      z-index: 20;
+    }
+
+    .question-head {
+      display: grid;
+      grid-template-columns: 1fr 174px;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .answer-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .answer-button {
+      min-height: 44px;
+      border-radius: 15px;
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      background: rgba(255, 255, 255, 0.62);
+      color: var(--muted);
+      box-shadow: var(--inset);
+      padding: 10px 12px;
+    }
+
+    .answer-button:hover {
+      transform: none;
+      border-color: rgba(255, 210, 26, 0.9);
+      background: rgba(255, 255, 255, 0.86);
+      color: var(--text);
+      box-shadow: 0 10px 22px rgba(179, 91, 0, 0.12), var(--inset);
+    }
+
+    .answer-button.si.active {
+      border-color: rgba(22, 112, 68, 0.34);
+      background: linear-gradient(135deg, rgba(232, 247, 239, 0.98), rgba(255, 255, 255, 0.78));
+      color: var(--ok);
+      box-shadow: 0 12px 26px rgba(22, 112, 68, 0.14), var(--inset);
+    }
+
+    .answer-button.no.active {
+      border-color: rgba(179, 38, 30, 0.36);
+      background: linear-gradient(135deg, rgba(255, 232, 229, 0.98), rgba(255, 255, 255, 0.78));
+      color: var(--danger);
+      box-shadow: 0 12px 26px rgba(179, 38, 30, 0.14), var(--inset);
+    }
+
+    .answer-button.si.active:hover {
+      border-color: rgba(22, 112, 68, 0.4);
+      background: linear-gradient(135deg, rgba(232, 247, 239, 0.98), rgba(255, 255, 255, 0.82));
+      color: var(--ok);
+    }
+
+    .answer-button.no.active:hover {
+      border-color: rgba(179, 38, 30, 0.4);
+      background: linear-gradient(135deg, rgba(255, 232, 229, 0.98), rgba(255, 255, 255, 0.82));
+      color: var(--danger);
+    }
+
+    .photo-box {
+      display: none;
+      margin-top: 12px;
+      border: 1px dashed var(--red);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 243, 179, 0.36);
+    }
+
+    .photo-box.visible {
+      display: block;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .actions button {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .summary {
+      display: grid;
+      gap: 10px;
+    }
+
+    .summary-item {
+      border: 1px solid rgba(216, 31, 21, 0.13);
+      border-radius: 16px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.62);
+      box-shadow: var(--inset);
+      backdrop-filter: blur(16px);
+    }
+
+    .status-line {
+      margin-top: 12px;
+      min-height: 22px;
+      font-weight: 700;
+    }
+
+    .error {
+      color: var(--danger);
+    }
+
+    .ok {
+      color: var(--ok);
+    }
+
+    @media (max-width: 680px) {
+      h1 {
+        font-size: 24px;
+      }
+
+      .grid,
+      .question-head,
+      .cashier-card {
+        grid-template-columns: 1fr;
+      }
+
+      .cashier-actions {
+        justify-content: stretch;
+      }
+
+      .cashier-actions button {
+        flex: 1;
+      }
+
+      .top-row {
+        align-items: stretch;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="header-inner">
+      <img class="brand-logo" src="logo-aliclor.png" alt="Aliclor tu punto de ahorro">
+    </div>
+  </header>
+
+  <main>
+    <section id="screenLogin" class="screen active">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2>Ingreso de supervisor</h2>
+            <p class="muted">Selecciona tu nombre e ingresa tu clave.</p>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label for="supervisor">Supervisor</label>
+            <select id="supervisor">
+              <option value="">Seleccionar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="clave">Clave</label>
+            <input id="clave" type="password" inputmode="numeric">
+          </div>
+        </div>
+
+        <button type="button" onclick="validarSupervisor()">Entrar</button>
+        <p id="loginMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenCajeras" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2>Cajas pendientes</h2>
+            <p id="supervisorActivo" class="muted"></p>
+          </div>
+          <button class="secondary" type="button" onclick="cerrarSesion()">Salir</button>
+        </div>
+
+        <div id="listaCajeras" class="list"></div>
+
+        <div class="actions">
+          <button class="ghost" type="button" onclick="mostrarResumen()">Ver resumen</button>
+          <button type="button" onclick="confirmarEnvioReporte()">Enviar reporte final</button>
+        </div>
+        <p id="cajasMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenAsignarCaja" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2 id="tituloAsignarCaja">Caja</h2>
+            <p class="muted">Selecciona quien esta atendiendo esta caja.</p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenCajeras')">Volver</button>
+        </div>
+
+        <div class="field">
+          <label>Cajera</label>
+          <div id="listaCajerasAsignar" class="name-strip"></div>
+        </div>
+
+        <p id="asignarCajaMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenChecklist" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2 id="tituloChecklist">Checklist</h2>
+            <p id="subtituloChecklist" class="muted"></p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenCajeras')">Volver</button>
+        </div>
+
+        <div id="preguntas"></div>
+
+        <div class="actions">
+          <button type="button" onclick="guardarRevision()">Guardar cajera</button>
+        </div>
+        <p id="checklistMensaje" class="status-line"></p>
+      </div>
+    </section>
+
+    <section id="screenResumen" class="screen">
+      <div class="card">
+        <div class="top-row">
+          <div>
+            <h2>Resumen final</h2>
+            <p class="muted">Revisa el avance antes de enviar el reporte.</p>
+          </div>
+          <button class="secondary" type="button" onclick="mostrarPantalla('screenCajeras')">Volver</button>
+        </div>
+
+        <div id="resumen" class="summary"></div>
+
+        <div class="actions">
+          <button type="button" onclick="enviarReporteFinal()">Enviar reporte final</button>
+        </div>
+        <p id="resumenMensaje" class="status-line"></p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbygOG4m6WCO4PLRiGJrd6Q8uXisNBm6eCzIBh6b1xu5EZ2P-TiP-ZtHqSwmjtqSFABfMg/exec";
+
+    let supervisores = [];
+    let cajeras = [];
+    let preguntasBase = [];
+    const cajas = ["1", "2", "3", "4", "5", "6"];
+
+    const estado = {
+      supervisor: null,
+      cajaActual: null,
+      cajeraActual: null,
+      cajeraAsignadaId: "",
+      revisiones: {}
+    };
+
+    function claveCaja(caja) {
+      return "Caja_" + caja;
+    }
+
+    function escaparHtml(valor) {
+      return String(valor ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function mostrarPantalla(id) {
+      document.querySelectorAll(".screen").forEach((screen) => {
+        screen.classList.remove("active");
+      });
+      const pantalla = document.getElementById(id);
+      pantalla.classList.add("active");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function cargarSupervisores() {
+      const select = document.getElementById("supervisor");
+      select.innerHTML = '<option value="">Seleccionar</option>';
+      supervisores.forEach((supervisor) => {
+        const option = document.createElement("option");
+        option.value = supervisor.id;
+        option.textContent = supervisor.nombre;
+        select.appendChild(option);
+      });
+      reiniciarSelectPersonalizado(select);
+    }
+
+    function cargarDatosDesdeSheet() {
+      const mensaje = document.getElementById("loginMensaje");
+      mensaje.className = "status-line";
+      mensaje.textContent = "Cargando datos...";
+
+      window.recibirDatosSupervision = function(datos) {
+        supervisores = datos.supervisores || [];
+        cajeras = normalizarCajeras(datos.cajeras || datos.empleados || []);
+        preguntasBase = (datos.preguntas || []).map((item) => item.pregunta || item.Pregunta || item);
+        cargarSupervisores();
+        mensaje.className = "status-line ok";
+        mensaje.textContent = "Datos cargados desde Google Sheets.";
+      };
+
+      const script = document.createElement("script");
+      script.src = URL_SCRIPT + "?action=datos&callback=recibirDatosSupervision";
+      script.onerror = function() {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "No se pudieron cargar los datos.";
+      };
+      document.body.appendChild(script);
+    }
+
+    function normalizarCajeras(origen) {
+      return origen
+        .map((item, index) => {
+          if (typeof item === "string") {
+            const nombreTexto = item.trim();
+            return {
+              id: "CAJERA_" + (index + 1),
+              nombre: nombreTexto,
+              caja: ""
+            };
+          }
+
+          const nombre = String(
+            item.nombre ||
+            item.Nombre ||
+            item.empleado ||
+            item.Empleado ||
+            item.cajera ||
+            item.Cajera ||
+            ""
+          ).trim();
+
+          return {
+            id: String(item.id || item.ID || nombre || "CAJERA_" + (index + 1)),
+            nombre,
+            caja: String(item.caja || item.Caja || "").trim()
+          };
+        })
+        .filter((cajera) => cajera.nombre);
+    }
+
+    function validarSupervisor() {
+      const id = document.getElementById("supervisor").value;
+      const clave = document.getElementById("clave").value;
+      const mensaje = document.getElementById("loginMensaje");
+      const supervisor = supervisores.find((item) => item.id === id && item.clave === clave);
+
+      if (!supervisor) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Supervisor o clave incorrecta.";
+        return;
+      }
+
+      estado.supervisor = supervisor;
+      mensaje.textContent = "";
+      document.getElementById("supervisorActivo").textContent = "Supervisor: " + supervisor.nombre;
+      renderCajas();
+      mostrarPantalla("screenCajeras");
+    }
+
+    function cerrarSesion() {
+      estado.supervisor = null;
+      estado.cajaActual = null;
+      estado.cajeraActual = null;
+      estado.cajeraAsignadaId = "";
+      document.getElementById("clave").value = "";
+      estado.revisiones = {};
+      mostrarPantalla("screenLogin");
+    }
+
+    function renderCajas() {
+      const lista = document.getElementById("listaCajeras");
+      lista.innerHTML = "";
+
+      cajas.forEach((caja) => {
+        const revision = estado.revisiones[claveCaja(caja)];
+        const estaGestionada = Boolean(revision);
+        const etiqueta = revision ? revision.estado : "Pendiente";
+        const claseBadge = revision?.estado === "Revisada" ? "ok" : revision ? "warn" : "warn";
+        const nombreCajera = revision?.cajera?.nombre || "Sin cajera seleccionada";
+        const div = document.createElement("div");
+        div.className = "cashier-card" + (estaGestionada ? " done" : "");
+        div.innerHTML = `
+          <div>
+            <h3>Caja ${escaparHtml(caja)}</h3>
+            <p class="muted">${escaparHtml(nombreCajera)}</p>
+            <span class="badge ${claseBadge}">${escaparHtml(etiqueta)}</span>
+          </div>
+          <div class="cashier-actions">
+            <button type="button" data-action="seleccionar">${revision ? "Editar" : "Seleccionar cajera"}</button>
+            <button class="ghost" type="button" data-action="dia-libre">Dia libre</button>
+            <button class="ghost" type="button" data-action="sin-cajera">Sin cajera</button>
+          </div>
+        `;
+        div.querySelector('[data-action="seleccionar"]').addEventListener("click", () => abrirAsignarCaja(caja));
+        div.querySelector('[data-action="dia-libre"]').addEventListener("click", () => marcarCajaEspecial(caja, "Dia libre"));
+        div.querySelector('[data-action="sin-cajera"]').addEventListener("click", () => marcarCajaSinCajera(caja));
+        lista.appendChild(div);
+      });
+    }
+
+    function abrirAsignarCaja(caja) {
+      estado.cajaActual = caja;
+      const revision = estado.revisiones[claveCaja(caja)];
+      document.getElementById("tituloAsignarCaja").textContent = "Caja " + caja;
+      document.getElementById("asignarCajaMensaje").textContent = "";
+      estado.cajeraAsignadaId = revision?.cajera?.id?.startsWith("SIN_CAJERA_") ? "" : revision?.cajera?.id || "";
+      renderBotonesCajeras();
+      mostrarPantalla("screenAsignarCaja");
+    }
+
+    function renderBotonesCajeras() {
+      const lista = document.getElementById("listaCajerasAsignar");
+      lista.innerHTML = "";
+
+      if (!cajeras.length) {
+        const aviso = document.createElement("div");
+        aviso.className = "empty-strip";
+        aviso.textContent = "No hay cajeras cargadas. Revisa la pestana Cajeras o vuelve a implementar Apps Script.";
+        lista.appendChild(aviso);
+        return;
+      }
+
+      cajeras.forEach((cajera) => {
+        const cajaUsada = buscarCajaDeCajera(cajera.id);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "name-button" + (estado.cajeraAsignadaId === cajera.id ? " active" : "") + (cajaUsada ? " used" : "");
+        button.textContent = cajaUsada ? cajera.nombre + " - Caja " + cajaUsada : cajera.nombre;
+        button.addEventListener("click", () => {
+          estado.cajeraAsignadaId = cajera.id;
+          const mensaje = document.getElementById("asignarCajaMensaje");
+          if (cajaUsada) {
+            mensaje.className = "status-line error";
+            mensaje.textContent = cajera.nombre + " ya esta registrada en Caja " + cajaUsada + ".";
+          }
+          iniciarRevisionCaja();
+        });
+        lista.appendChild(button);
+      });
+    }
+    function buscarCajaDeCajera(cajeraId) {
+      const cajaActualClave = claveCaja(estado.cajaActual);
+
+      for (const [clave, revision] of Object.entries(estado.revisiones)) {
+        if (clave === cajaActualClave) continue;
+        if (revision?.cajera?.id === cajeraId) {
+          return revision.cajera.caja || clave.replace("Caja_", "");
+        }
+      }
+
+      return "";
+    }
+
+    function confirmarCajeraDuplicada(cajera) {
+      const cajaUsada = buscarCajaDeCajera(cajera.id);
+
+      if (!cajaUsada) return true;
+
+      return confirm(cajera.nombre + " ya esta registrada en Caja " + cajaUsada + ". Deseas continuar de todos modos?");
+    }
+
+    function obtenerCajeraSeleccionada() {
+      const cajera = cajeras.find((item) => item.id === estado.cajeraAsignadaId);
+
+      if (!cajera || !estado.cajaActual) return null;
+
+      return {
+        ...cajera,
+        caja: estado.cajaActual
+      };
+    }
+
+    function iniciarRevisionCaja() {
+      const mensaje = document.getElementById("asignarCajaMensaje");
+      const cajera = obtenerCajeraSeleccionada();
+
+      if (!cajera) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Selecciona una cajera.";
+        return;
+      }
+
+      if (!confirmarCajeraDuplicada(cajera)) return;
+
+      estado.cajeraActual = cajera;
+      abrirChecklist();
+    }
+
+    function marcarCajaEspecial(caja, estadoCaja) {
+      if (!caja) return;
+
+      estado.revisiones[claveCaja(caja)] = {
+        estado: estadoCaja,
+        cajera: {
+          id: estadoCaja.replace(/\s+/g, "_").toUpperCase() + "_" + caja,
+          nombre: estadoCaja,
+          caja
+        },
+        respuestas: [],
+        observacion: estadoCaja
+      };
+
+      estado.cajaActual = null;
+      estado.cajeraActual = null;
+      estado.cajeraAsignadaId = "";
+      renderCajas();
+      mostrarPantalla("screenCajeras");
+    }
+
+    function marcarCajaSinCajera(caja = estado.cajaActual) {
+      marcarCajaEspecial(caja, "Sin cajera");
+    }
+
+    function abrirChecklist() {
+      const cajera = estado.cajeraActual;
+      document.getElementById("tituloChecklist").textContent = "Checklist de " + cajera.nombre;
+      document.getElementById("subtituloChecklist").textContent = "Caja " + cajera.caja;
+      document.getElementById("checklistMensaje").textContent = "";
+      renderPreguntas();
+      mostrarPantalla("screenChecklist");
+    }
+
+    function renderPreguntas() {
+      const contenedor = document.getElementById("preguntas");
+      const revision = estado.revisiones[claveCaja(estado.cajaActual)];
+      contenedor.innerHTML = "";
+
+      preguntasBase.forEach((texto, index) => {
+        const respuestaGuardada = revision?.respuestas[index]?.respuesta || "";
+        const div = document.createElement("div");
+        div.className = "question";
+        div.dataset.index = index;
+        div.dataset.respuesta = respuestaGuardada === "Si" || respuestaGuardada === "No" ? respuestaGuardada : "";
+        div.innerHTML = `
+          <div class="question-head">
+            <strong>${escaparHtml(texto)}</strong>
+            <div class="answer-toggle" role="group" aria-label="Respuesta">
+              <button class="answer-button si" type="button" data-respuesta="Si">Si</button>
+              <button class="answer-button no" type="button" data-respuesta="No">No</button>
+            </div>
+          </div>
+          <div class="photo-box">
+            <label>Foto obligatoria si responde No</label>
+            <input type="file" accept="image/*" capture="environment" data-foto="${index}">
+          </div>
+        `;
+        const photoBox = div.querySelector(".photo-box");
+        contenedor.appendChild(div);
+        actualizarBotonesRespuesta(div);
+
+        div.querySelectorAll(".answer-button").forEach((button) => {
+          button.addEventListener("click", () => {
+            div.dataset.respuesta = button.dataset.respuesta;
+            photoBox.classList.toggle("visible", button.dataset.respuesta === "No");
+            actualizarBotonesRespuesta(div);
+          });
+        });
+      });
+    }
+
+    function actualizarBotonesRespuesta(question) {
+      const respuesta = question.dataset.respuesta || "";
+      const photoBox = question.querySelector(".photo-box");
+
+      question.querySelectorAll(".answer-button").forEach((button) => {
+        button.classList.toggle("active", button.dataset.respuesta === respuesta);
+      });
+
+      if (photoBox) {
+        photoBox.classList.toggle("visible", respuesta === "No");
+      }
+    }
+
+    function reiniciarSelectPersonalizado(select) {
+      const wrapper = select.nextElementSibling;
+      if (wrapper && wrapper.classList.contains("custom-select")) {
+        wrapper.remove();
+      }
+      select.dataset.customReady = "";
+      select.classList.remove("native-select-hidden");
+      crearSelectPersonalizado(select);
+    }
+
+    function cerrarSelectsPersonalizados(excepto = null) {
+      document.querySelectorAll(".custom-select.open").forEach((select) => {
+        if (select !== excepto) {
+          select.classList.remove("open");
+        }
+      });
+    }
+
+    function crearSelectPersonalizado(select) {
+      if (select.dataset.customReady === "true") return;
+
+      select.dataset.customReady = "true";
+      select.classList.add("native-select-hidden");
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "custom-select";
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "custom-select-button";
+
+      const optionsBox = document.createElement("div");
+      optionsBox.className = "custom-options";
+
+      function textoSeleccionado() {
+        return select.options[select.selectedIndex]?.textContent || "Seleccionar";
+      }
+
+      function actualizar() {
+        button.textContent = textoSeleccionado();
+        optionsBox.querySelectorAll(".custom-option").forEach((optionButton) => {
+          optionButton.classList.toggle("selected", optionButton.dataset.value === select.value);
+        });
+      }
+
+      Array.from(select.options).forEach((option) => {
+        const optionButton = document.createElement("button");
+        optionButton.type = "button";
+        optionButton.className = "custom-option";
+        optionButton.dataset.value = option.value;
+        optionButton.textContent = option.textContent;
+        optionButton.addEventListener("click", () => {
+          select.value = option.value;
+          select.dispatchEvent(new Event("change", { bubbles: true }));
+          wrapper.classList.remove("open");
+          actualizar();
+        });
+        optionsBox.appendChild(optionButton);
+      });
+
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const estaAbierto = wrapper.classList.contains("open");
+        cerrarSelectsPersonalizados(wrapper);
+        wrapper.classList.toggle("open", !estaAbierto);
+      });
+
+      optionsBox.addEventListener("click", (event) => {
+        event.stopPropagation();
+      });
+
+      wrapper.appendChild(button);
+      wrapper.appendChild(optionsBox);
+      select.insertAdjacentElement("afterend", wrapper);
+      actualizar();
+    }
+
+    async function guardarRevision() {
+      const mensaje = document.getElementById("checklistMensaje");
+      const respuestas = [];
+      let faltaFoto = false;
+      let faltaRespuesta = false;
+      const lecturas = [];
+
+      document.querySelectorAll(".question").forEach((question) => {
+        const index = Number(question.dataset.index);
+        const valorRespuesta = question.dataset.respuesta || "";
+        const foto = document.querySelector(`[data-foto="${index}"]`);
+
+        if (!valorRespuesta) {
+          faltaRespuesta = true;
+        }
+
+        if (valorRespuesta === "No" && !foto.files.length) {
+          faltaFoto = true;
+        }
+        const respuesta = {
+          pregunta: preguntasBase[index],
+          respuesta: valorRespuesta,
+          foto: foto.files[0]?.name || "",
+          fotoNombre: "",
+          fotoBase64: ""
+        };
+
+        if (foto.files[0]) {
+          const archivo = foto.files[0];
+          respuesta.fotoNombre = archivo.name;
+          lecturas.push(leerArchivoBase64(archivo).then((base64) => {
+            respuesta.fotoBase64 = base64;
+          }));
+        }
+
+        respuestas.push(respuesta);
+      });
+
+      if (faltaRespuesta) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Responde Si o No en todas las preguntas.";
+        return;
+      }
+
+      if (faltaFoto) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Falta una foto en una pregunta marcada como No.";
+        return;
+      }
+
+      mensaje.className = "status-line";
+      mensaje.textContent = "Guardando revision...";
+
+      await Promise.all(lecturas);
+
+      estado.revisiones[claveCaja(estado.cajaActual)] = {
+        estado: "Revisada",
+        cajera: estado.cajeraActual,
+        respuestas,
+        observacion: ""
+      };
+
+      mensaje.className = "status-line ok";
+      mensaje.textContent = "Revision guardada.";
+      renderCajas();
+      setTimeout(() => mostrarPantalla("screenCajeras"), 500);
+    }
+
+    function mostrarResumen() {
+      const resumen = document.getElementById("resumen");
+      resumen.innerHTML = "";
+
+      cajas.forEach((caja) => {
+        const revision = estado.revisiones[claveCaja(caja)];
+        const div = document.createElement("div");
+        div.className = "summary-item";
+
+        if (!revision) {
+          div.innerHTML = `<strong>Caja ${escaparHtml(caja)}</strong><br><span class="badge warn">Pendiente</span>`;
+        } else if (revision.estado !== "Revisada") {
+          div.innerHTML = `
+            <strong>Caja ${escaparHtml(caja)}</strong><br>
+            <p class="muted">${escaparHtml(revision.cajera.nombre)}</p>
+            <span class="badge warn">${escaparHtml(revision.estado)} - Caja ${escaparHtml(caja)}</span>
+          `;
+        } else {
+          const novedades = revision.respuestas.filter((item) => item.respuesta === "No").length;
+          div.innerHTML = `
+            <strong>${escaparHtml(revision.cajera.nombre)}</strong><br>
+            <span class="badge ok">Revisada - Caja ${escaparHtml(caja)}</span>
+            <p class="muted">${novedades} novedad(es)</p>
+          `;
+        }
+        resumen.appendChild(div);
+      });
+
+      document.getElementById("resumenMensaje").textContent = "";
+      mostrarPantalla("screenResumen");
+    }
+
+    function confirmarEnvioReporte() {
+      const mensaje = document.getElementById("cajasMensaje");
+      const pendientes = cajas.filter((caja) => !estado.revisiones[claveCaja(caja)]);
+
+      if (pendientes.length) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Aun hay cajas pendientes: " + pendientes.join(", ") + ".";
+        return;
+      }
+
+      const confirmado = confirm("¿Estas seguro de enviar el reporte final?");
+      if (!confirmado) return;
+
+      enviarReporteFinal("cajasMensaje");
+    }
+
+    function enviarReporteFinal(mensajeId = "resumenMensaje") {
+      const pendientes = cajas.filter((caja) => !estado.revisiones[claveCaja(caja)]);
+      const mensaje = document.getElementById(mensajeId);
+
+      if (pendientes.length) {
+        mensaje.className = "status-line error";
+        mensaje.textContent = "Aun hay cajas pendientes: " + pendientes.join(", ") + ".";
+        return;
+      }
+
+      mensaje.className = "status-line";
+      mensaje.textContent = "Enviando reporte...";
+
+      enviarPorFormularioOculto({
+        tipo: "reporte_final",
+        reporte: JSON.stringify({
+          supervisor: estado.supervisor,
+          revisiones: Object.values(estado.revisiones)
+        })
+      });
+
+      mensaje.className = "status-line ok";
+      mensaje.textContent = "Reporte enviado. Revisa Google Sheets y el correo.";
+      setTimeout(() => reiniciarAplicacion(), 900);
+    }
+
+    function reiniciarAplicacion() {
+      estado.supervisor = null;
+      estado.cajaActual = null;
+      estado.cajeraActual = null;
+      estado.revisiones = {};
+      document.getElementById("clave").value = "";
+      document.getElementById("cajasMensaje").textContent = "";
+      document.getElementById("resumenMensaje").textContent = "";
+      document.getElementById("loginMensaje").textContent = "";
+      renderCajas();
+      mostrarPantalla("screenLogin");
+    }
+
+    function enviarPorFormularioOculto(datos) {
+      const iframeName = "envioOcultoSupervision";
+      let iframe = document.querySelector(`iframe[name="${iframeName}"]`);
+
+      if (!iframe) {
+        iframe = document.createElement("iframe");
+        iframe.name = iframeName;
+        iframe.style.display = "none";
+        document.body.appendChild(iframe);
+      }
+
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = URL_SCRIPT;
+      form.target = iframeName;
+      form.style.display = "none";
+
+      Object.entries(datos).forEach(([clave, valor]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = clave;
+        input.value = valor;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
+    }
+
+    function leerArchivoBase64(archivo) {
+      return new Promise((resolve, reject) => {
+        const lector = new FileReader();
+        lector.onload = () => resolve(lector.result);
+        lector.onerror = reject;
+        lector.readAsDataURL(archivo);
+      });
+    }
+
+    document.addEventListener("click", () => cerrarSelectsPersonalizados());
+
+    cargarDatosDesdeSheet();
+  </script>
+</body>
+</html>
